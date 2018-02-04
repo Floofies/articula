@@ -45,8 +45,7 @@ prod-build/index.html : prod-build prod-build/tmp/index.js prod-build/tmp/style.
 	@echo "<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'><title>Articula</title><script type='text/html/>window.addEventListener('load', function() {" >> prod-build/index.html
 	@cat prod-build/tmp/markdown-it.min.js prod-build/tmp/highlight.min.js prod-build/tmp/javascript.min.js >> prod-build/index.html
 	@cat prod-build/tmp/index.js >> prod-build/index.html
-	@echo "});</script>" >> prod-build/index.html
-	@echo "<style type='text/css'>" >> prod-build/index.html
+	@echo "});</script><style type='text/css'>" >> prod-build/index.html
 	@cat prod-build/tmp/vs.min.css prod-build/tmp/skeleton.min.css prod-build/tmp/style.css >> prod-build/index.html
 	@echo "</style></head><body>" >> prod-build/index.html
 	@cat src/index.html >> prod-build/index.html
