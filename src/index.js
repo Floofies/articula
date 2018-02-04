@@ -34,7 +34,6 @@
 		} else {
 			ajax(title + ".md").then(function (markdown) {
 				const page = document.createRange().createContextualFragment(mdParser.render(markdown));
-				page.querySelectorAll("code").forEach(element => hljs.highlightBlock(element));
 				empty(pageContainer);
 				pageContainer.appendChild(page.cloneNode(true));
 				showIndicator(false);
@@ -77,10 +76,13 @@
 					sidebarList.appendChild(section);
 				} else {
 					var page = elementTemplate.cloneNode(true);
-					sidebarList.appendChild(sidebarElement(title));
+					sidebarList.appendChild(sidebarElement(titles[title]));
 				}
 			}
-		}).catch(showError);
+		}).catch(function (error) {
+			error.message = "Unable to load index.json : " + error.message;
+			showError(error);
+		});
 	}
 	var curSection = null;
 	function showSection(title) {
