@@ -31,10 +31,10 @@ By default, `index.json` is a flat array like this one:
 Articula also supports basic drop-down menu organization if you use an object instead:
 ```JSON
 {
-	mySection: [
+	"mySection": [
 		"myPage"
 	],
-	myOtherSection: [
+	"myOtherSection": [
 		"myOtherPage"
 	]
 }
