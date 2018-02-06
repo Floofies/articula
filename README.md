@@ -2,7 +2,7 @@
 
 **A simple Markdown navigator for GitHub Pages**
 
-[View Demo](demo.articula.io)
+[View Demo](http://demo.articula.io)
 
 ---
 
