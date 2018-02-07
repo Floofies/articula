@@ -1,10 +1,24 @@
-html {
+html, body { 
+	margin:0; 
+	padding:0; 
+	height:100%; 
 	background-color: #f2f2f2;
 }
 
-body {
-	background-color: #f2f2f2;
-	margin:0;
+.header {
+	height:50px;
+	width:100%;
+	display:flex;
+	flex-flow:row;
+	justify-content: space-around;
+	align-items:center;
+	background: -webkit-linear-gradient(top, #373737, #212121);
+	color:white;
+}
+
+.headerTitle {
+	font-size:24px;
+	font-weight:bold;
 }
 
 .main {
@@ -19,6 +33,41 @@ body {
 	width: 100%;
 	height: auto;
 	background-color:#f2f2f2;
+	position:relative;
+	overflow-x:hidden;
+}
+
+.sidebarShowing {
+	animation: 1s 1 reverse slideUp;
+	animation-fill-mode: backwards;
+	-webkit-animation-fill-mode: backwards;
+	-moz-animation-fill-mode: backwards;
+}
+
+.sidebarHidden {
+	animation: 1s 1 normal slideUp;
+	animation-fill-mode: forwards;
+	-webkit-animation-fill-mode: forwards;
+	-moz-animation-fill-mode: forwards;
+}
+
+@keyframes slideUp {
+	0% {
+		top:0;
+	}
+	100% {
+		position:absolute;
+		top:-100%;
+	}
+}
+@keyframes slideLeft {
+	0% {
+		right:0;
+	}
+	100% {
+		position:absolute;
+		right:100%;
+	}
 }
 
 .sidebarHeader {
@@ -30,6 +79,67 @@ body {
 	cursor: pointer;
 	user-select: none;
 	text-align: center;
+}
+.sidebarToggleWrap {
+	padding:10px;
+	cursor:pointer;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+.sidebarToggle,
+.sidebarToggle::before,
+.sidebarToggle::after,
+.sidebarToggleWrap.active .sidebarToggle,
+.sidebarToggleWrap.active .sidebarToggle::before,
+.sidebarToggleWrap.active .sidebarToggle::after {
+	-webkit-transition: all .2s ease-in-out;
+	-moz-transition: all .2s ease-in-out;
+	-o-transition: all .2s ease-in-out;
+	transition: all .2s ease-in-out;
+}
+.sidebarToggle {
+	width: 38px;
+	margin: 10px 0;
+	position: relative;
+	user-select:none;
+	cursor:pointer;
+	border-top: 3px solid white;
+	display:block;
+}
+.sidebarToggle::before,
+.sidebarToggle::after {
+	content: "";
+	display: block;
+	background: white;
+	height: 3px;
+	width: 38px;
+	position: absolute;
+	top: -14px;
+	-ms-transform: rotate(0deg);
+	-webkit-transform: rotate(0deg);
+	transform: rotate(0deg);
+	-ms-transform-origin: 9%;
+	-webkit-transform-origin: 9%;
+	transform-origin: 9%;
+}
+.sidebarToggle::after {
+  top: 8px;
+}
+.sidebarToggleWrap.active .sidebarToggle {
+  border-top: 3px solid transparent;
+}
+.sidebarToggleWrap.active .sidebarToggle::before {
+	-ms-transform: rotate(45deg);
+	-webkit-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+.sidebarToggleWrap.active .sidebarToggle::after {
+	-ms-transform: rotate(-45deg);
+	-webkit-transform: rotate(-45deg);
+	transform: rotate(-45deg);
 }
 
 .sidebarList {
@@ -212,6 +322,9 @@ body {
 	display: none;
 }
 
+.invisible {
+	visibility: hidden;
+}
 
 code {
 	padding-top:0px;
@@ -244,14 +357,28 @@ ul {
 		align-content: space-around;
 		justify-content: space-around;
 	}
-	.container {
-		padding-right:10px;
-	}
 	.sidebar {
-		padding-left:10px;
-		padding-right:10px;
-		width: 300px;
-		max-height: auto;
+		padding-right:5px;
+		margin-right:10px;
+		padding-left:5px;
+		border-right: 1px solid #5a5a5a;
+		width: auto;
+		height: auto;
+		min-width:300px;
+		min-height:100vh;
+	}
+	.sidebarShowing {
+		animation: 1s 1 reverse slideLeft;
+		animation-fill-mode: backwards;
+		-webkit-animation-fill-mode: backwards;
+		-moz-animation-fill-mode: backwards;
+	}
+	
+	.sidebarHidden {
+		animation: 1s 1 normal slideLeft;
+		animation-fill-mode: forwards;
+		-webkit-animation-fill-mode: forwards;
+		-moz-animation-fill-mode: forwards;
 	}
 	.sidebarList {
 		overflow-y: visible;

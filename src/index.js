@@ -30,13 +30,13 @@
 		if (cached !== undefined) {
 			empty(pageContainer);
 			pageContainer.appendChild(cached.cloneNode(true));
-			showIndicator(false);
+			hideIndicator();
 		} else {
 			ajax(title + ".md").then(function (markdown) {
 				const page = document.createRange().createContextualFragment(mdParser.render(markdown));
 				empty(pageContainer);
 				pageContainer.appendChild(page.cloneNode(true));
-				showIndicator(false);
+				hideIndicator();
 				cache.set(title, page);
 			}).catch(showError);
 		}
@@ -50,10 +50,19 @@
 		});
 		return template;
 	}
-	const sidebarList = document.getElementById("sidebarList");
+	const sidebar = document.getElementById("sidebar");
+	const sidebarToggle = document.getElementById("sidebarToggle");
+	const sidebarToggleWrap = document.getElementById("sidebarToggleWrap");
+	const sidebarList = sidebar.querySelector("#sidebarList");
 	const elementTemplate = document.getElementById("elementTemplate").content;
 	const sectionTemplate = document.getElementById("sectionTemplate").content;
 	const sections = {};
+	function toggleSidebar() {
+		sidebarToggleWrap.classList.toggle("active");
+		sidebar.classList.toggle("sidebarHidden");
+		sidebar.classList.toggle("sidebarShowing");
+	}
+	sidebarToggleWrap.addEventListener("click", toggleSidebar);
 	function loadIndex() {
 		ajax("index.json").then(function (body) {
 			const titles = JSON.parse(body);
@@ -122,10 +131,15 @@
 	}
 	var loading = true;
 	const indicator = document.getElementById("dimmer");
-	function showIndicator(show = true) {
-		if (show && loading || !show && !loading) return;
-		indicator.classList[show ? "remove" : "add"]("hidden");
-		loading = show;
+	function showIndicator() {
+		if (loading ) return;
+		indicator.classList.remove("hidden");
+		loading = true;
+	}
+	function hideIndicator() {
+		if (!loading) return;
+		indicator.classList.add("hidden");
+		loading = false;
 	}
 	document.getElementById("sidebarHeader").addEventListener("click", () => loadPage("home"));
 	loadPage("home");
