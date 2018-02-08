@@ -10,7 +10,7 @@
 					if (req.status >= 200 && req.status < 400) {
 						resolve(req.response);
 					} else {
-						reject(new Error("HTTP Error " + req.status + ": " + req.statusText));
+						reject(new Error("HTTP Error " + req.status + " " + req.statusText));
 					}
 				}
 			};
@@ -19,6 +19,10 @@
 			req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 			req.send(data);
 		});
+	}
+	const headerTitle = document.getElementById("headerTitle");
+	function setTitle(title) {
+		headerTitle.replaceChild(document.createTextNode(title), headerTitle.firstChild);
 	}
 	const pageContainer = document.getElementById("pageContainer");
 	const mdParser = markdownit();
@@ -35,6 +39,7 @@
 			ajax(title + ".md").then(function (markdown) {
 				const page = document.createRange().createContextualFragment(mdParser.render(markdown));
 				empty(pageContainer);
+				setTitle(title);
 				pageContainer.appendChild(page.cloneNode(true));
 				hideIndicator();
 				cache.set(title, page);
@@ -60,7 +65,6 @@
 	function toggleSidebar() {
 		sidebarToggleWrap.classList.toggle("active");
 		sidebar.classList.toggle("sidebarHidden");
-		sidebar.classList.toggle("sidebarShowing");
 	}
 	sidebarToggleWrap.addEventListener("click", toggleSidebar);
 	function loadIndex() {
@@ -89,7 +93,7 @@
 				}
 			}
 		}).catch(function (error) {
-			error.message = "Unable to load index.json : " + error.message;
+			error.message = "Failed to load index.json : " + error.message;
 			showError(error);
 		});
 	}
@@ -119,8 +123,9 @@
 		empty(errorContainer);
 		errorContainer.insertAdjacentText("afterbegin", "Error: " + error.message);
 		pageContainer.classList.add("hidden");
-		showIndicator(false);
+		setTitle(error.message);
 		errorContainer.classList.remove("hidden");
+		hideIndicator();
 		showingError = true;
 	}
 	function hideError() {
