@@ -1,0 +1,11 @@
+{
+	"title": "Articula",
+	"repo": "https://github.com/Floofies/articula",
+	"pages": {
+		"Home": ["home"],
+		"Readme": ["README"]
+	},
+	"home": "home",
+	"sidebar": true,
+	"sidebarOpen": true
+}

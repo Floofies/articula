@@ -2,6 +2,8 @@
 
 **A simple Markdown navigator for GitHub Pages**
 
+[View Demo](http://demo.articula.io)
+
 ---
 
 ## Installing
