@@ -1,3 +1,4 @@
+// This script is used for clientside testing with NodeJS
 const express = require('express');
 const app = express();
 app.use(express.static("./"));
