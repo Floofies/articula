@@ -28,6 +28,10 @@ Temporary Items
 
 # Directories created by makefile
 prod-build
+dev-build
 tmp
 node_modules
 package_lock.json
+
+# Releases Directory
+releases
