@@ -3,10 +3,15 @@
 	function get(url = "/", type = "text") {
 		return fetch(url).then(res => res[type]());
 	}
-	// Returns the value of the URL hash parameter, or `null` if the value is empty.
-	function getHash() {
-		if (window.location.hash.length < 2) return null;
-		return window.location.hash.slice(1, window.location.hash.length)
+	// Sends an HTTP HEAD request to `url`.
+	function head(url = "/") {
+		return fetch(url, { method: "HEAD" }).then(res => res.headers);
+	}
+	function parseModTime(modTime) {
+		return parseInt((new Date(modTime).getTime() / 1000).toFixed(0), 10);
+	}
+	function getModTime(url) {
+		return head(url).then(headers => parseModTime(headers.get("Last-Modified")));
 	}
 	// Removes all child nodes in an Element.
 	function empty(element) {
@@ -38,27 +43,49 @@
 	const mdParser = markdownit();
 	// Caches parsed markdown HTML Nodes.
 	const pageCache = new Map();
-	// Loads the markdown page indicated by `title` if it exists, caching it if needed.
+	var lastCacheCheck = 0;
+	// Loads the markdown page if it exists.
 	function loadPage(title) {
 		showIndicator();
 		hideError();
 		setPageQueryString(title);
+		// Check if page is in cache.
 		const cached = pageCache.get(title);
-		if (cached !== undefined) {
-			empty(pageContainer);
-			setTitle(title);
-			pageContainer.appendChild(cached.cloneNode(true));
-			hideIndicator();
-		} else {
-			get(title + ".md").then(function (markdown) {
-				const page = createFragment(mdParser.render(markdown));
-				empty(pageContainer);
-				setTitle(title);
-				pageContainer.appendChild(page.cloneNode(true));
-				hideIndicator();
-				pageCache.set(title, page);
-			}).catch(showError);
+		if (cached === undefined) {
+			// Page not cached, load from server instead.
+			loadPageRemote(title);
+			return;
+		} else if (Date.now() < cached.modTime + 60000) {
+			// Don't check staleness if page is less than 60 seconds old
+			renderPage(title, cached.page);
+			return;
 		}
+		// Check if the cached page is stale.
+		getModTime(title + ".md").then(function (modTime) {
+			if (modTime > cached.modTime) {
+				loadPageRemote(title);
+			} else {
+				renderPage(title, cached.page);
+			}
+		}).catch(showError);
+	}
+	// Loads a markdown file from the remote server.
+	function loadPageRemote(title) {
+		fetch(title + ".md").then(function (res) {
+			const modTime = parseModTime(res.headers.get("Last-Modified"));
+			res.text().then(function (markdown) {
+				const page = createFragment(mdParser.render(markdown));
+				pageCache.set(title, { page: page, modTime: modTime });
+				renderPage(title, page);
+			});
+		}).catch(showError);
+	}
+	// Display a DocumentFragment in the main page container.
+	function renderPage(title, page) {
+		empty(pageContainer);
+		setTitle(title);
+		pageContainer.appendChild(page.cloneNode(true));
+		hideIndicator();
 	}
 	// Returns a new sidebar element template containing `title`, with an event listener attached.
 	function createSidebarElement(title) {
@@ -163,6 +190,28 @@
 		indicator.classList.add("hidden");
 		loading = false;
 	}
+	// Returns the value of the URL hash parameter, or `null` if the value is empty.
+	function getHash() {
+		if (window.location.hash.length < 2) return null;
+		return window.location.hash.slice(1, window.location.hash.length)
+	}
+	const headingSelector = "h1, h2, h3, h4, h5, h6";
+	// Scrolls to the first Heading element which matches `name`.
+	function scrollToHeading(title) {
+		const headings = document.querySelectorAll(headingSelector);
+		if (headings === null) return;
+		for (const heading of headings) {
+			const headingTitle = heading.textContent;
+			if (headingTitle.length === 0) continue;
+			if (headingTitle.trim() === title) heading.scrollIntoView();
+		}
+	}
+	function scrollToHash() {
+		const title = getHash();
+		if (title === null) return;
+		scrollToHeading(title);
+	}
+	window.addEventListener("hashchange", scrollToHash);
 	const repoLink = document.getElementById("repoLink");
 	// Loads the configuration file, repository link, window title, home page, and sidebar.
 	function init() {
@@ -185,6 +234,7 @@
 					sidebar.classList.remove("sidebarHidden");
 				}
 			}
+			const hash = getHash();
 		}).catch(showError);
 	}
 	init();
