@@ -30,7 +30,8 @@
 	// Sets the page title in the URL Query String
 	function setPageQueryString(title) {
 		searchParams.set("p", title);
-		const url = window.location.protocol + "//" + window.location.host + window.location.pathname + "?" + encodeURI(searchParams.toString());
+		// TODO: super glue hair back on head
+		const url = window.location.protocol + "//" + window.location.host + window.location.pathname + "?" + encodeURI(searchParams.toString()) + window.location.hash;
 		window.history.pushState({ path: url }, "", url);
 	}
 	// Returns the current page title from the URL Query String, or `null` if there is none.
@@ -85,6 +86,7 @@
 		empty(pageContainer);
 		setTitle(title);
 		pageContainer.appendChild(page.cloneNode(true));
+		scrollToHash();
 		hideIndicator();
 	}
 	// Returns a new sidebar element template containing `title`, with an event listener attached.
@@ -234,7 +236,6 @@
 					sidebar.classList.remove("sidebarHidden");
 				}
 			}
-			const hash = getHash();
 		}).catch(showError);
 	}
 	init();
