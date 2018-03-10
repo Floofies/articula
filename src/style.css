@@ -326,6 +326,7 @@ html, body {
 
 code {
 	padding-top:0px;
+	overflow:auto;
 	line-height:1.5;
 	tab-size:4;
 	font-size:16px;
@@ -333,6 +334,11 @@ code {
 	-webkit-hyphens:none;
 	-moz-hyphens:none;
 	-ms-hyphens:none;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
 	background-color:#fdfdfd;
 	background-image: linear-gradient(transparent 50%, rgba(69, 142, 209, 0.04) 50%);
 	background-size: 3em 3em;
