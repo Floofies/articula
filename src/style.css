@@ -25,17 +25,23 @@ html, body {
 }
 
 .githubLink {
+	padding: 0 12px;
+	display:inherit;
 	color: white;
+}
+.githubLink:hover {
+	color: black;
+	background-color:white;
+	border-color:black;
 }
 
 .githubLinkText {
-
+	float:right;
 }
 
 .octicon {
-	position: absolute;
-	display: inline-block;
-	height:36px;
+	padding-right:10px;
+	float:left;
 	width:20px;
 	fill: currentColor;
 }
@@ -351,6 +357,11 @@ ul {
 	}
 	.githubLink {
 		color: black;
+	}
+	.githubLink:hover {
+		color: #333;
+		background-color:transparent;
+		border-color:#888;
 	}
 	.main {
 		flex-flow: row;
