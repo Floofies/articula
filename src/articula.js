@@ -1,11 +1,15 @@
 (function () {
 	// Sends an HTTP GET request to `url` with response type `type`.
 	function get(url = "/", type = "text") {
-		return fetch(url).then(res => res[type]());
+		return fetch(url).then(xhrException).then(res => res[type]());
 	}
 	// Sends an HTTP HEAD request to `url`.
 	function head(url = "/") {
-		return fetch(url, { method: "HEAD" }).then(res => res.headers);
+		return fetch(url, { method: "HEAD" }).then(xhrException).then(res => res.headers);
+	}
+	function xhrException(res) {
+		if (!res.ok) throw new Error(res.statusText);
+		return res;
 	}
 	function parseModTime(modTime) {
 		return parseInt((new Date(modTime).getTime() / 1000).toFixed(0), 10);
@@ -72,7 +76,7 @@
 	}
 	// Loads a markdown file from the remote server.
 	function loadPageRemote(title) {
-		fetch(title + ".md").then(function (res) {
+		fetch(title + ".md").then(xhrException).then(function (res) {
 			const modTime = parseModTime(res.headers.get("Last-Modified"));
 			res.text().then(function (markdown) {
 				const page = createFragment(mdParser.render(markdown));
