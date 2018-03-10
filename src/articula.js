@@ -95,6 +95,7 @@
 		const element = template.querySelector(".sidebarElement");
 		element.insertAdjacentText("afterbegin", title);
 		element.addEventListener("click", function (event) {
+			window.location.hash = "";
 			loadPage(title);
 		});
 		return template;
