@@ -33,15 +33,16 @@
 	const searchParams = new URLSearchParams();
 	// Sets the page title in the URL Query String
 	function setPageQueryString(title) {
+		console.log(title);
 		searchParams.set("p", title);
 		// TODO: super glue hair back on head
-		const url = window.location.protocol + "//" + window.location.host + window.location.pathname + "?" + encodeURI(searchParams.toString()) + window.location.hash;
+		const url = window.location.protocol + "//" + window.location.host + window.location.pathname + "?" + searchParams.toString() + window.location.hash;
 		window.history.pushState({ path: url }, "", url);
 	}
 	// Returns the current page title from the URL Query String, or `null` if there is none.
 	function getPageQueryString() {
 		if (window.location.search.length === 0) return null;
-		return new URLSearchParams(window.location.search).get("p");
+		return decodeURIComponent(new URLSearchParams(window.location.search).get("p"));
 	}
 	const pageContainer = document.getElementById("pageContainer");
 	// Parses markdown into an HTML tagString.
@@ -50,57 +51,59 @@
 	const pageCache = new Map();
 	var lastCacheCheck = 0;
 	// Loads the markdown page if it exists.
-	function loadPage(title) {
-		showIndicator();
+	function loadPage(path, title) {
 		hideError();
-		setPageQueryString(title);
+		setPageQueryString(path);
 		// Check if page is in cache.
-		const cached = pageCache.get(title);
+		const cached = pageCache.get(path);
 		if (cached === undefined) {
 			// Page not cached, load from server instead.
-			loadPageRemote(title);
+			showIndicator();
+			loadPageRemote(path, title);
 			return;
 		} else if (Date.now() < cached.modTime + 60000) {
 			// Don't check staleness if page is less than 60 seconds old
-			renderPage(title, cached.page);
+			renderPage(cached.page, cached.title);
 			return;
 		}
 		// Check if the cached page is stale.
-		getModTime(title + ".md").then(function (modTime) {
+		getModTime(path).then(function (modTime) {
 			if (modTime > cached.modTime) {
-				loadPageRemote(title);
+				showIndicator();
+				loadPageRemote(path, title);
 			} else {
-				renderPage(title, cached.page);
+				renderPage(cached.page, cached.title);
 			}
 		}).catch(showError);
 	}
 	// Loads a markdown file from the remote server.
-	function loadPageRemote(title) {
-		fetch(title + ".md").then(xhrException).then(function (res) {
+	function loadPageRemote(path, title) {
+		fetch(path).then(xhrException).then(function (res) {
 			const modTime = parseModTime(res.headers.get("Last-Modified"));
 			res.text().then(function (markdown) {
 				const page = createFragment(mdParser.render(markdown));
-				pageCache.set(title, { page: page, modTime: modTime });
-				renderPage(title, page);
+				pageCache.set(path, { page: page, title: title, modTime: modTime });
+				renderPage(page, title);
 			});
 		}).catch(showError);
 	}
 	// Display a DocumentFragment in the main page container.
-	function renderPage(title, page) {
+	function renderPage(page, title) {
 		empty(pageContainer);
 		setTitle(title);
 		pageContainer.appendChild(page.cloneNode(true));
+		headings = document.querySelectorAll(headingSelector);
 		scrollToHash();
 		hideIndicator();
 	}
 	// Returns a new sidebar element template containing `title`, with an event listener attached.
-	function createSidebarElement(title) {
+	function createSidebarElement(path, title) {
 		const template = elementTemplate.cloneNode(true);
 		const element = template.querySelector(".sidebarElement");
 		element.insertAdjacentText("afterbegin", title);
 		element.addEventListener("click", function (event) {
 			window.location.hash = "";
-			loadPage(title);
+			loadPage(path, title);
 		});
 		return template;
 	}
@@ -118,50 +121,73 @@
 	}
 	sidebarToggleWrap.addEventListener("click", toggleSidebar);
 	// Loads a list of pages into the sidebar.
-	function loadIndex(titles) {
-		var rootSections = !Array.isArray(titles);
-		for (const title in titles) {
-			if (rootSections && Array.isArray(titles[title])) {
-				var section = sectionTemplate.cloneNode(true);
-				var sectionTitle = section.querySelector(".sectionTitle")
+	function loadIndex(pages, node = null) {
+		if (node === null) node = sidebarList;
+		for (const title in pages) {
+			if ((typeof pages[title]) === "object") {
+				const section = sectionTemplate.cloneNode(true);
+				const sectionPages = section.querySelector(".sectionPages");
+				const sectionTitle = section.querySelector(".sectionTitle");
 				sectionTitle.insertAdjacentText("afterbegin", "▸ " + title);
-				sectionTitle.addEventListener("click", () => showSection(title));
-				var sectionPages = section.querySelector(".sectionPages");
-				sections[title] = {
+				const sectionDescriptor = {
 					section: section,
 					title: sectionTitle,
-					pages: sectionPages
+					titleString: title,
+					pages: sectionPages,
+					parent: node
 				};
-				for (const subTitle of titles[title]) {
-					sectionPages.appendChild(createSidebarElement(subTitle));
-				}
-				sidebarList.appendChild(section);
-			} else {
-				var page = elementTemplate.cloneNode(true);
-				sidebarList.appendChild(createSidebarElement(titles[title]));
+				sectionTitle.addEventListener("click", () => toggleSection(sectionDescriptor));
+				loadIndex(pages[title], sectionPages);
+				node.appendChild(section);
+			} else if ((typeof pages[title]) === "string") {
+				node.appendChild(createSidebarElement(pages[title], title));
 			}
 		}
 	}
-	var curSection = null;
-	// Shows a sidebar section's contents.
-	function showSection(title) {
-		if (curSection !== null) hideSection(curSection);
-		if (curSection !== title) {
-			const section = sections[title];
-			empty(section.title);
-			section.title.insertAdjacentText("afterbegin", "▾ " + title);
-			sections[title].pages.classList.remove("hidden");
-			curSection = title;
-		} else {
-			curSection = null;
+	const nestStack = [];
+	// Shows/hides a sidebar section's contents.
+	function toggleSection(section) {
+		if (nestStack.length === 0) {
+			nestStack.push(section);
+			showSection(section);
+			return;
+		}
+		const index = nestStack.findIndex(value => value === section);
+		const parentIndex = nestStack.findIndex(value => value.pages === section.parent);
+		if (index === -1) {
+			if (parentIndex !== -1) {
+				if (parentIndex === (nestStack.length - 1)) {
+					nestStack.push(section);
+					showSection(section);
+				} else {
+					while (nestStack.length !== (parentIndex + 1)) hideSection(nestStack.pop());
+					nestStack.push(section);
+					showSection(section);
+				}
+			} else {
+				while (nestStack.length !== 0) hideSection(nestStack.pop());
+				nestStack.push(section);
+				showSection(section);
+			}
+		} else if (index !== -1) {
+			if (index !== (nestStack.length - 1)) {
+				while ((nestStack.length - 1) !== (index - 1)) hideSection(nestStack.pop());
+			} else {
+				nestStack.pop(section);
+				hideSection(section);
+			}
 		}
 	}
-	// Hides a sidebar section's contents.
-	function hideSection(title) {
-		const section = sections[title];
-		section.pages.classList.add("hidden");
+	function showSection(section) {
 		empty(section.title);
-		section.title.insertAdjacentText("afterbegin", "▸ " + title);
+		section.title.insertAdjacentText("afterbegin", "▾ " + section.titleString);
+		section.pages.classList.remove("hidden");
+	}
+	// Hides a sidebar section's contents.
+	function hideSection(section) {
+		empty(section.title);
+		section.title.insertAdjacentText("afterbegin", "▸ " + section.titleString);
+		section.pages.classList.add("hidden");
 	}
 	var showingError = false;
 	const errorContainer = document.getElementById("errorContainer");
@@ -203,10 +229,10 @@
 		return window.location.hash.slice(1, window.location.hash.length)
 	}
 	const headingSelector = "h1, h2, h3, h4, h5, h6";
-	// Scrolls to the first Heading element which matches `name`.
+	var headings = null;
+	// Scrolls to the first Heading element which matches `title`.
 	function scrollToHeading(title) {
-		const headings = document.querySelectorAll(headingSelector);
-		if (headings === null) return;
+		if (headings === null || headings.length === 0) return;
 		for (const heading of headings) {
 			const headingTitle = heading.textContent;
 			if (headingTitle.length === 0) continue;
@@ -230,11 +256,13 @@
 			if ("title" in conf) window.title = conf.title;
 			const queryStringPage = getPageQueryString();
 			if (queryStringPage !== null) {
-				loadPage(queryStringPage);
+				loadPage(queryStringPage, queryStringPage);
 			} else if ("home" in conf) {
-				loadPage(conf.home);
+				loadPage(conf.home, "Home");
 			}
-			if ("pages" in conf) loadIndex(conf.pages);
+			if (!("pages" in conf)) conf.pages = {};
+			if (("home" in conf) && !("home" in conf.pages)) conf.pages.home = conf.home;
+			loadIndex(conf.pages);
 			if ("sidebar" in conf) {
 				sidebar.classList.remove("hidden");
 				if ("sidebarOpen" in conf && conf.sidebarOpen === true) {

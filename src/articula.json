@@ -2,10 +2,10 @@
 	"title": "Articula",
 	"repo": "https://github.com/Floofies/articula",
 	"pages": {
-		"Home": ["home"],
-		"Readme": ["README"]
+		"Home": "home.md",
+		"Readme": "README.md"
 	},
-	"home": "home",
+	"home": "home.md",
 	"sidebar": true,
 	"sidebarOpen": true
 }
