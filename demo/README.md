@@ -72,7 +72,7 @@ pages: {
 pages: {
 	"myPage": "path/to/myPage.md",
 	"mySection": {
-		"mySubPage": "path/to/mySubPage.md"
+		"mySubPage": "path/to/mySubPage.md",
 		"mySubSection": {
 			"mySubSubPage": "path/to/mySubSubPage.md"
 		}
