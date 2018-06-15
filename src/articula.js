@@ -33,7 +33,6 @@
 	const searchParams = new URLSearchParams();
 	// Sets the page title in the URL Query String
 	function setPageQueryString(title) {
-		console.log(title);
 		searchParams.set("p", title);
 		// TODO: super glue hair back on head
 		const url = window.location.protocol + "//" + window.location.host + window.location.pathname + "?" + searchParams.toString() + window.location.hash;
@@ -50,8 +49,11 @@
 	// Caches parsed markdown HTML Nodes.
 	const pageCache = new Map();
 	var lastCacheCheck = 0;
+	var curPath = "";
+	var loadFail = false;
 	// Loads the markdown page if it exists.
 	function loadPage(path, title) {
+		curPath = path;
 		hideError();
 		setPageQueryString(path);
 		// Check if page is in cache.
@@ -74,7 +76,10 @@
 			} else {
 				renderPage(cached.page, cached.title);
 			}
-		}).catch(showError);
+		}).catch(error => {
+			loadFail = true;
+			setError(error);
+		});
 	}
 	// Loads a markdown file from the remote server.
 	function loadPageRemote(path, title) {
@@ -85,16 +90,30 @@
 				pageCache.set(path, { page: page, title: title, modTime: modTime });
 				renderPage(page, title);
 			});
-		}).catch(showError);
+		}).catch(error => {
+			loadFail = true;
+			setError(error);
+		});
 	}
 	// Display a DocumentFragment in the main page container.
 	function renderPage(page, title) {
 		empty(pageContainer);
 		setTitle(title);
 		pageContainer.appendChild(page.cloneNode(true));
+		loadFail = false;
+		collapseSidebar();
 		headings = document.querySelectorAll(headingSelector);
 		scrollToHash();
 		hideIndicator();
+	}
+	function hidePage() {
+		pageContainer.classList.add("hidden");
+	}
+	function showPage() {
+		pageContainer.classList.remove("hidden");
+	}
+	function togglePage() {
+		pageContainer.classList.toggle("hidden");
 	}
 	// Returns a new sidebar element template containing `title`, with an event listener attached.
 	function createSidebarElement(path, title) {
@@ -110,16 +129,43 @@
 	const sidebar = document.getElementById("sidebar");
 	const sidebarToggle = document.getElementById("sidebarToggle");
 	const sidebarToggleWrap = document.getElementById("sidebarToggleWrap");
+	const treeButton = document.getElementById("treeButtonWrap");
 	const sidebarList = sidebar.querySelector("#sidebarList");
 	const elementTemplate = document.getElementById("elementTemplate").content;
 	const sectionTemplate = document.getElementById("sectionTemplate").content;
 	const sections = {};
 	// Toggles sidebar visibility and button appearance.
 	function toggleSidebar() {
+		treeButton.classList.toggle("hidden");
 		sidebarToggleWrap.classList.toggle("active");
 		sidebar.classList.toggle("sidebarHidden");
+		collapseSidebar();
 	}
 	sidebarToggleWrap.addEventListener("click", toggleSidebar);
+	var sidebarExpanded = false;
+	function toggleExpandSidebar() {
+		if (sidebarExpanded) {
+			collapseSidebar();
+		} else {
+			expandSidebar();
+		}
+	}
+	treeButton.addEventListener("click", toggleExpandSidebar);
+	function expandSidebar() {
+		sidebar.classList.add("sidebarExpanded");
+		hideError();
+		hidePage();
+		sidebarExpanded = true;
+	}
+	function collapseSidebar() {
+		sidebar.classList.remove("sidebarExpanded");
+		if (loadFail) {
+			showError();
+		} else {
+			showPage();
+		}
+		sidebarExpanded = false;
+	}
 	// Loads a list of pages into the sidebar.
 	function loadIndex(pages, node = null) {
 		if (node === null) node = sidebarList;
@@ -192,21 +238,27 @@
 	var showingError = false;
 	const errorContainer = document.getElementById("errorContainer");
 	// Shows the error message from `error.message`.
-	function showError(error) {
+	function setError(error) {
 		console.error(error);
 		empty(errorContainer);
 		errorContainer.insertAdjacentText("afterbegin", "Error: " + error.message);
-		pageContainer.classList.add("hidden");
+		collapseSidebar();
 		setTitle("Error!");
-		errorContainer.classList.remove("hidden");
+		showError();
 		hideIndicator();
+		showingError = true;
+	}
+	function showError() {
+		if (showingError) return;
+		errorContainer.classList.remove("hidden");
+		hidePage();
 		showingError = true;
 	}
 	// Hides the error message.
 	function hideError() {
 		if (!showingError) return;
 		errorContainer.classList.add("hidden");
-		pageContainer.classList.remove("hidden");
+		showPage();
 		showingError = false;
 	}
 	var loading = true;
@@ -246,6 +298,7 @@
 	}
 	window.addEventListener("hashchange", scrollToHash);
 	const repoLink = document.getElementById("repoLink");
+	const homeButton = document.getElementById("homeButtonWrap");
 	// Loads the configuration file, repository link, window title, home page, and sidebar.
 	function init() {
 		get("articula.json", "json").then(function (conf) {
@@ -255,6 +308,12 @@
 			}
 			if ("title" in conf) window.title = conf.title;
 			const queryStringPage = getPageQueryString();
+			if ("home" in conf) {
+				homeButton.addEventListener("click", function () {
+					if (curPath !== conf.home) loadPage(conf.home, "Home")
+				});
+				homeButton.classList.remove("hidden");
+			}
 			if (queryStringPage !== null) {
 				loadPage(queryStringPage, queryStringPage);
 			} else if ("home" in conf) {
@@ -266,9 +325,13 @@
 				sidebar.classList.remove("hidden");
 				if ("sidebarOpen" in conf && conf.sidebarOpen === true) {
 					sidebar.classList.remove("sidebarHidden");
+					treeButton.classList.remove("hidden");
 				}
 			}
-		}).catch(showError);
+		}).catch(error => {
+			loadFail = true;
+			setError(error);
+		});
 	}
 	init();
 })();

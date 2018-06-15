@@ -54,6 +54,50 @@ html, body {
 	height: 100%;
 }
 
+.controlStripWrap {
+	max-height:100%;
+	display:flex;
+	flex-flow:row;
+	justify-content:space-between;
+	align-items:center;
+}
+
+.homeButtonWrap {
+	padding:10px;
+	cursor:pointer;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+.homeButton {
+	width: 38px;
+	position: relative;
+	user-select:none;
+	cursor:pointer;
+	display:block;
+	fill:white;
+}
+
+.treeButtonWrap {
+	padding:10px;
+	cursor:pointer;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+.treeButton {
+	width: 38px;
+	position: relative;
+	user-select:none;
+	cursor:pointer;
+	display:block;
+	fill:white;
+}
+
 .sidebar {
 	width: 100%;
 	max-height:100%;
@@ -61,11 +105,9 @@ html, body {
 	overflow:hidden;
 	transition: all 0.3s ease;
 }
-
 .sidebarHidden {
 	max-height:0px;
 }
-
 .sidebarHeader {
 	background: -webkit-linear-gradient(top, #373737, #212121);
 	font-size: 24px;
@@ -136,6 +178,39 @@ html, body {
 	-ms-transform: rotate(-45deg);
 	-webkit-transform: rotate(-45deg);
 	transform: rotate(-45deg);
+}
+
+.sidebarExpanded {
+	position:absolute;
+	width:100%;
+	height:100%;
+}
+.sidebarExpanded .sidebarList .sidebarElement {
+	text-align:left;
+	padding:5px;
+	padding-left:15px;
+}
+
+.sidebarExpanded .sidebarList .sidebarElement .sidebarElement {
+	text-align:left;
+	padding:5px;
+	margin-left:10px;
+}
+.sidebarExpanded .sidebarList .sidebarSection {
+	text-align:left;
+	border:0px;
+}
+
+.sidebarExpanded .sidebarList .sidebarSection .sidebarElement {
+	text-align:left;
+	margin-left:10px;
+}
+
+.sidebarExpanded .sidebarList .sidebarSection .sectionPages {
+	text-align:left;
+	margin-left:10px;
+	border:0px;
+	border-left:1px solid grey;
 }
 
 .sidebarList {
@@ -374,11 +449,20 @@ ul {
 		align-content: space-around;
 		justify-content: space-around;
 	}
+	.homeButton {
+		fill:black;
+	}
+	.treeButton {
+		fill:black;
+	}
 	.sidebar {
 		padding-right:5px;
 		margin-right:10px;
 		max-width:25vw;
 		min-height:100%;
+	}
+	.sidebarExpanded {
+		max-width:90vw;
 	}
 	.sidebarHeader {
 		background:transparent;

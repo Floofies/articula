@@ -9,8 +9,24 @@
 	</div>
 </template>
 <div class="header">
-	<div id="sidebarToggleWrap" class="sidebarToggleWrap active">
-		<div id="sidebarToggle" class="sidebarToggle"></div>
+	<div class="controlStripWrap">
+		<div id="sidebarToggleWrap" class="sidebarToggleWrap active">
+			<div id="sidebarToggle" class="sidebarToggle"></div>
+		</div>
+		<div id="homeButtonWrap" class="homeButtonWrap">
+			<div id="homeButton" class="homeButton">
+				<svg version="1.1" viewBox="0 0 22 22" class="homeIcon" aria-hidden="true">
+					<path d="M9,19V13H11L13,13H15V19H18V10.91L12,4.91L6,10.91V19H9M12,2.09L21.91,12H20V21H13V15H11V21H4V12H2.09L12,2.09Z"></path>
+				</svg>
+			</div>
+		</div>
+		<div id="treeButtonWrap" class="treeButtonWrap hidden">
+			<div id="treeButton" class="treeButton">
+				<svg version="1.1" viewBox="0 0 22 22" class="treeIcon" aria-hidden="true">
+					<path d="M3,3H9V7H3V3M15,10H21V14H15V10M15,17H21V21H15V17M13,13H7V18H13V20H7L5,20V9H7V11H13V13Z"></path>
+				</svg>
+			</div>
+		</div>
 	</div>
 	<div id="headerTitle" class="headerTitle">Articula</div>
 	<a id="repoLink" class="githubLink button invisible">
