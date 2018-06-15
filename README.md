@@ -1,12 +1,12 @@
 # Articula
 
-**A simple Markdown navigator for GitHub Pages**
+**A simple Markdown document viewer for GitHub Pages**
 
 [View Demo](http://demo.articula.io)
 
 ---
 
-## Installing
+# Installing
 
 Navigate to your remote repository on GitHub, click Settings, and [set up your GitHub Pages publishing source.](https://help.github.com/articles/configuring-a-publishing-source-for-github-pages/)
 
@@ -16,34 +16,72 @@ Upon navigating to your GitHub Pages URL in a web browser, you should see a page
 
 If you encounter any issues you can not fix, please create a new Issue in this repository which clearly describes the problem and how to reproduce it.
 
-## Configuring
+# Configuring
 
-Articula uses a file named `home.md` as the index of your Pages site, and you can edit or replace this file.
+Articula uses a file named `articula.json` to store configuration settings and the page index.
 
-Adding pages to Articula is very easy. A single `index.json` file is used to store the names of your pages without the filetype extensions.
+## Available Configuration Options
 
-By default, `index.json` is a flat array like this one:
+Property|Value Type|Description
+---|---|---
+`title`|String|The title of the browser window.
+`repo`|String|The URL to use with the "View On GitHub" button.
+`home`|String|The path of a Markdown document you would like to use as the home page.
+`sidebar`|Boolean|Setting to `false` will completely hide & disable the sidebar.
+`sidebarOpen`|Boolean|Setting to `true` will open the sidebar when first loading Articula.
+`pages`|Object|An Object tree describing the pages to display in the sidebar.
+
+## Adding Pages, Sections, and Sub-Sections to the Sidebar
+
+Pages can be added to the sidebar by adding properties to the `pages` object in `articula.json`. Property names are used to label the sidebar elements, while property values can identifiy either a section/sub-section or a Markdown document.
+
+Strings idenfity Markdown documents, while Objects are sections/sub-sections.
+
+Sections are nestable, allowing you to create unlimited sub-sections.
+
+### Example - Basic Usage:
+
 ```JSON
-[
-	"myPage",
-	"myOtherPage"
-]
-```
-
-Articula also supports basic drop-down menu organization if you use an object instead:
-```JSON
-{
-	"mySection": [
-		"myPage"
-	],
-	"myOtherSection": [
-		"myOtherPage"
-	]
+pages: {
+	"Page One": "path/to/page1.md",
+	"Page Two": "path/to/page2.md",
+	"Page Three": "path/to/page3.md"
 }
 ```
 
-## Building
+### Example - Section Usage:
 
-If you are contributing to the project, GNU Make and `makefile` are used to build the production files. Run `make` in terminal for a list of build options.
+```JSON
+pages: {
+	"cats": {
+		"Siamese": "cats/siamese.md",
+		"American Bobtail": "cats/americanBobtail.md",
+		"Scottish Fold": "cats/scottishFold.md"
+	},
+	"dogs": {
+		"Basset Hound": "dogs/bassetHound.md",
+		"Golden Retriever": "dogs/goldenRetriever.md",
+		"Spanish Mastiff": "dogs/spanishMastiff.md"
+	}
+}
+```
 
-The production build will be put into a `prod-build` directory.
+### Example - Nested Sub-Section Usage:
+
+```JSON
+pages: {
+	"myPage": "path/to/myPage.md"
+	"mySection": {
+		"mySubPage": "path/to/mySubPage.md"
+		"mySubSection": {
+			"mySubSubPage": "path/to/mySubSubPage.md"
+		}
+	}
+}
+```
+
+# Building
+
+If you are contributing to the project, GNU Make and the `makefile` are used to build the production files.
+
+Run `make` in terminal for a list of build options.
