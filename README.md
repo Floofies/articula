@@ -42,7 +42,7 @@ Sections are nestable, allowing you to create unlimited sub-sections.
 ### Example - Basic Usage:
 
 ```JSON
-pages: {
+"pages": {
 	"Page One": "path/to/page1.md",
 	"Page Two": "path/to/page2.md",
 	"Page Three": "path/to/page3.md"
@@ -52,7 +52,7 @@ pages: {
 ### Example - Section Usage:
 
 ```JSON
-pages: {
+"pages": {
 	"cats": {
 		"Siamese": "cats/siamese.md",
 		"American Bobtail": "cats/americanBobtail.md",
@@ -69,7 +69,7 @@ pages: {
 ### Example - Nested Sub-Section Usage:
 
 ```JSON
-pages: {
+"pages": {
 	"myPage": "path/to/myPage.md",
 	"mySection": {
 		"mySubPage": "path/to/mySubPage.md",
