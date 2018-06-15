@@ -10,7 +10,7 @@
 
 Navigate to your remote repository on GitHub, click Settings, and [set up your GitHub Pages publishing source.](https://help.github.com/articles/configuring-a-publishing-source-for-github-pages/)
 
-Once you have set up your source directory, move `index.html`, `index.json`, and `home.md` to it, then commit/push the files to your repository.
+Once you have set up your source directory, move `index.html`, `articula.json`, and `home.md` to it, then commit/push the files to your repository.
 
 Upon navigating to your GitHub Pages URL in a web browser, you should see a page which states: "Articula is Working!". If not, confirm that all needed files are present in your source directory. If they are present, you should also confirm that they are available by opening them directly via your GitHub Pages URL.
 
