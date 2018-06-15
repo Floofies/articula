@@ -261,9 +261,8 @@
 				loadPage(conf.home, "Home");
 			}
 			if (!("pages" in conf)) conf.pages = {};
-			if (("home" in conf) && !("home" in conf.pages)) conf.pages.home = conf.home;
 			loadIndex(conf.pages);
-			if ("sidebar" in conf) {
+			if ("sidebar" in conf && conf.sidebar === true) {
 				sidebar.classList.remove("hidden");
 				if ("sidebarOpen" in conf && conf.sidebarOpen === true) {
 					sidebar.classList.remove("sidebarHidden");
