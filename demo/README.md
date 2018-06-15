@@ -70,7 +70,7 @@ pages: {
 
 ```JSON
 pages: {
-	"myPage": "path/to/myPage.md"
+	"myPage": "path/to/myPage.md",
 	"mySection": {
 		"mySubPage": "path/to/mySubPage.md"
 		"mySubSection": {
