@@ -309,9 +309,7 @@
 			if ("title" in conf) window.title = conf.title;
 			const queryStringPage = getPageQueryString();
 			if ("home" in conf) {
-				homeButton.addEventListener("click", function () {
-					if (curPath !== conf.home) loadPage(conf.home, "Home")
-				});
+				homeButton.addEventListener("click", _=> loadPage(conf.home, "Home"));
 				homeButton.classList.remove("hidden");
 			}
 			if (queryStringPage !== null) {
