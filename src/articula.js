@@ -141,6 +141,17 @@
 		sidebar.classList.toggle("sidebarHidden");
 		collapseSidebar();
 	}
+	function showSidebar() {
+		treeButton.classList.remove("hidden");
+		sidebarToggleWrap.classList.add("active");
+		sidebar.classList.remove("sidebarHidden");
+	}
+	function hideSidebar() {
+		treeButton.classList.add("hidden");
+		sidebarToggleWrap.classList.remove("active");
+		sidebar.classList.add("sidebarHidden");
+		collapseSidebar();
+	}
 	sidebarToggleWrap.addEventListener("click", toggleSidebar);
 	var sidebarExpanded = false;
 	function toggleExpandSidebar() {
@@ -321,9 +332,9 @@
 			loadIndex(conf.pages);
 			if ("sidebar" in conf && conf.sidebar === true) {
 				sidebar.classList.remove("hidden");
+				sidebarToggleWrap.classList.remove("hidden");
 				if ("sidebarOpen" in conf && conf.sidebarOpen === true) {
-					sidebar.classList.remove("sidebarHidden");
-					treeButton.classList.remove("hidden");
+					showSidebar();
 				}
 			}
 		}).catch(error => {
